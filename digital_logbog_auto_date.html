@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang='da'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Digital Logbog</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+        }
+        .log-form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 500px;
+            margin: auto;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .entries {
+            margin-top: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .entry {
+            background: #fff;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Digital Logbog</h1>
+    <div class='log-form'>
+        <input type='date' id='date'>
+        <input type='text' id='activity' placeholder='Aktivitet'>
+        <input type='text' id='goals' placeholder='Mål'>
+        <textarea id='reflection' rows='6' placeholder='Refleksion - Hvad tager jeg med fra i dag?'></textarea>
+        <button onclick='saveEntry()'>Gem</button>
+    </div>
+    <div class='entries' id='entries'></div>
+
+    <script>
+        function saveEntry() {
+            const date = document.getElementById('date').value;
+            const activity = document.getElementById('activity').value;
+            const goals = document.getElementById('goals').value;
+            const reflection = document.getElementById('reflection').value;
+
+            if (!date || !activity || !goals || !reflection) {
+                alert('Udfyld alle felter!');
+                return;
+            }
+
+            const entry = { date, activity, goals, reflection };
+            let entries = JSON.parse(localStorage.getItem('logEntries')) || [];
+            entries.push(entry);
+            localStorage.setItem('logEntries', JSON.stringify(entries));
+
+            document.getElementById('date').value = '';
+            document.getElementById('activity').value = '';
+            document.getElementById('goals').value = '';
+            document.getElementById('reflection').value = '';
+
+            displayEntries();
+        }
+
+        function displayEntries() {
+            const entries = JSON.parse(localStorage.getItem('logEntries')) || [];
+            const container = document.getElementById('entries');
+            container.innerHTML = '';
+            entries.forEach((entry, index) => {
+                const div = document.createElement('div');
+                div.className = 'entry';
+                div.innerHTML = `<strong>${entry.date}</strong><br>
+                                 <b>Aktivitet:</b> ${entry.activity}<br>
+                                 <b>Mål:</b> ${entry.goals}<br>
+                                 <b>Refleksion:</b> ${entry.reflection}<br>
+                                 <button onclick='deleteEntry(${index})'>Slet</button>`;
+                container.appendChild(div);
+            });
+        }
+
+        function deleteEntry(index) {
+            let entries = JSON.parse(localStorage.getItem('logEntries')) || [];
+            entries.splice(index, 1);
+            localStorage.setItem('logEntries', JSON.stringify(entries));
+            displayEntries();
+        }
+
+        window.onload = function() { displayEntries(); document.getElementById('date').value = new Date().toISOString().split('T')[0]; };
+    </script>
+</body>
+</html>
